@@ -6,6 +6,10 @@ export interface TemplateOptions {
   readonly ctaLabel: string;
   readonly defaultMode: ServingMode;
   readonly enableMixedMode: boolean;
+  readonly heroImageUrl: string;
+  readonly heroImageAlt: string;
+  readonly heroImagePosition: string;
+  readonly heroImageFit: "cover" | "contain";
 }
 
 /** SVG hero illustration — bowl + kibble. ~0.5 KB inline. */
@@ -98,13 +102,26 @@ export const renderTemplate = (id: string, opts: TemplateOptions): string => {
         <button type="submit" class="dogfood-calc__submit">${escapeHtml(opts.ctaLabel)}</button>
       </form>
 
-      <aside class="dogfood-calc__panel" aria-live="polite">
+      <aside
+        class="dogfood-calc__panel${opts.heroImageUrl ? " dogfood-calc__panel--image" : ""}"
+        ${
+          opts.heroImageUrl
+            ? `style="background-image:url('${escapeAttr(opts.heroImageUrl)}');background-position:${escapeAttr(opts.heroImagePosition)};background-size:${opts.heroImageFit};"`
+            : ""
+        }
+        ${opts.heroImageUrl ? `role="img" aria-label="${escapeAttr(opts.heroImageAlt)}"` : ""}
+        aria-live="polite"
+      >
         <div class="dogfood-calc__hero" data-hero>
-          ${HERO_SVG}
-          <p class="dogfood-calc__hero-title">A meal plan, made just for them</p>
-          <p class="dogfood-calc__hero-text">
-            Tell us a few things about your dog and we'll work out their daily energy needs and food portion.
-          </p>
+          ${
+            opts.heroImageUrl
+              ? ""
+              : `${HERO_SVG}
+                 <p class="dogfood-calc__hero-title">A meal plan, made just for them</p>
+                 <p class="dogfood-calc__hero-text">
+                   Tell us a few things about your dog and we'll work out their daily energy needs and food portion.
+                 </p>`
+          }
         </div>
 
         <div class="dogfood-calc__result" data-result hidden>
@@ -130,6 +147,8 @@ export const renderTemplate = (id: string, opts: TemplateOptions): string => {
     </div>
   `;
 };
+
+const escapeAttr = (s: string): string => escapeHtml(s);
 
 const escapeHtml = (s: string): string =>
   s.replace(/[&<>"']/g, (c) => {

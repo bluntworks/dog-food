@@ -21,6 +21,10 @@ export interface WidgetConfig {
   readonly foodSplitPercent: number;
   readonly defaultMode: ServingMode;
   readonly enableMixedMode: boolean;
+  readonly heroImageUrl: string;
+  readonly heroImageAlt: string;
+  readonly heroImagePosition: string;
+  readonly heroImageFit: "cover" | "contain";
 }
 
 const DEFAULTS: WidgetConfig = {
@@ -33,6 +37,10 @@ const DEFAULTS: WidgetConfig = {
   foodSplitPercent: 80,
   defaultMode: "mixed",
   enableMixedMode: true,
+  heroImageUrl: "",
+  heroImageAlt: "Happy dog ready for their meal",
+  heroImagePosition: "center",
+  heroImageFit: "cover",
 };
 
 let instanceCounter = 0;
@@ -49,6 +57,10 @@ export const readConfig = (el: HTMLElement): WidgetConfig => {
     foodSplitPercent: numAttr(ds.foodSplitPercent, DEFAULTS.foodSplitPercent),
     defaultMode: ds.defaultMode === "food-only" ? "food-only" : "mixed",
     enableMixedMode: ds.enableMixedMode !== "false",
+    heroImageUrl: ds.heroImageUrl ?? DEFAULTS.heroImageUrl,
+    heroImageAlt: ds.heroImageAlt ?? DEFAULTS.heroImageAlt,
+    heroImagePosition: ds.heroImagePosition ?? DEFAULTS.heroImagePosition,
+    heroImageFit: ds.heroImageFit === "contain" ? "contain" : "cover",
   };
 };
 
@@ -84,6 +96,10 @@ export const mountWidget = (host: HTMLElement): void => {
     ctaLabel: config.ctaLabel,
     defaultMode: config.defaultMode,
     enableMixedMode: config.enableMixedMode,
+    heroImageUrl: config.heroImageUrl,
+    heroImageAlt: config.heroImageAlt,
+    heroImagePosition: config.heroImagePosition,
+    heroImageFit: config.heroImageFit,
   });
 
   populateBreedDatalist(host, id);

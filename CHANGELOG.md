@@ -1,5 +1,26 @@
 # Changelog
 
+## 2026-05-07 — Image flexibility + dev fixes
+
+### Added
+- `data-hero-image-url`, `data-hero-image-alt`, `data-hero-image-position`,
+  `data-hero-image-fit` host attributes (and matching Duda Widget Builder
+  properties) — site owner can pick a hero image, anchor the focal point
+  (`top` / `center` / `bottom` / `left` / `right` / arbitrary CSS), and
+  choose `cover` vs `contain` fit. Position and fit are applied as inline
+  styles so any CSS value works.
+- `public/hero.png` (Nature & Nourish product mock) wired into the dev page
+  as the default hero image for local previews.
+- Frosted-white result card surface when the hero is an image, so calc
+  results stay legible over any photo (`backdrop-filter: blur`).
+
+### Changed
+- When a hero image is set, the right panel is now image-only (no headline
+  / subtext overlay). The SVG-bowl + headline fallback still renders when
+  no image URL is present.
+- Dev server config rooted at the project root with `server.open` pointing
+  at `/dev/index.html`, so `/src/main.ts` resolves cleanly.
+
 ## 2026-05-07 — Nature & Nourish redesign
 
 ### Changed

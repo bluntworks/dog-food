@@ -207,6 +207,54 @@
   display: none;
 }
 
+.dogfood-calc__panel--image {
+  /* background-size + background-position are set inline by the template
+     so site owners can configure them; default repeat / colour live here. */
+  background-repeat: no-repeat;
+  background-color: var(--dfc-mint-soft);
+  position: relative;
+  min-height: 360px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 1.5rem;
+  overflow: hidden;
+}
+
+.dogfood-calc__panel--image .dogfood-calc__hero {
+  position: relative;
+  width: 100%;
+  text-align: left;
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.dogfood-calc__panel--image .dogfood-calc__hero-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-align: left;
+  max-width: 18ch;
+  color: var(--dfc-forest);
+}
+
+.dogfood-calc__panel--image .dogfood-calc__hero-text {
+  text-align: left;
+  max-width: 28ch;
+  color: var(--dfc-forest);
+  opacity: 0.85;
+}
+
+/* Result card needs to sit on top of the bg image too — give it its own surface. */
+.dogfood-calc__panel--image .dogfood-calc__result {
+  position: relative;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(4px);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+}
+
 .dogfood-calc__hero-illustration {
   width: 140px;
   height: 140px;

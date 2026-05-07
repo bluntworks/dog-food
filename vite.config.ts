@@ -10,8 +10,9 @@ import { resolve } from "node:path";
 export default defineConfig(({ command }) => {
   if (command === "serve") {
     return {
-      root: resolve(__dirname, "dev"),
-      server: { port: 5173, open: true },
+      // Root stays at the project root so /src/* resolves cleanly.
+      // We just open the dev host page on startup.
+      server: { port: 5173, open: "/dev/index.html" },
     };
   }
 

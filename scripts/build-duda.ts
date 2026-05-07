@@ -23,6 +23,10 @@ const WIDGET_HTML = `<div
   data-heading="{{heading}}"
   data-subheading="{{subheading}}"
   data-cta-label="{{ctaLabel}}"
+  data-hero-image-url="{{heroImageUrl}}"
+  data-hero-image-alt="{{heroImageAlt}}"
+  data-hero-image-position="{{heroImagePosition}}"
+  data-hero-image-fit="{{heroImageFit}}"
   data-food-kcal-per-kg="{{foodKcalPerKg}}"
   data-kibble-kcal-per-kg="{{kibbleKcalPerKg}}"
   data-food-split-percent="{{foodSplitPercent}}"
@@ -55,6 +59,44 @@ const WIDGET_JSON = {
       label: "Button label",
       type: "text",
       default: "Calculate daily portion",
+    },
+    {
+      name: "heroImageUrl",
+      label: "Hero image URL (optional)",
+      help: "Upload an image to your Duda media library and paste the URL here. Leave blank for the default illustration.",
+      type: "image",
+      default: "",
+    },
+    {
+      name: "heroImageAlt",
+      label: "Hero image alt text",
+      type: "text",
+      default: "Happy dog ready for their meal",
+    },
+    {
+      name: "heroImagePosition",
+      label: "Image focal point",
+      help: "Where the image is anchored when cropped. Try 'top', 'center', 'bottom', or a CSS value like 'center 30%'.",
+      type: "select",
+      options: [
+        { value: "center", label: "Center" },
+        { value: "top", label: "Top" },
+        { value: "bottom", label: "Bottom" },
+        { value: "left", label: "Left" },
+        { value: "right", label: "Right" },
+      ],
+      default: "center",
+    },
+    {
+      name: "heroImageFit",
+      label: "Image fit",
+      help: "Cover fills the panel and crops if needed. Contain shows the whole image and may letterbox.",
+      type: "select",
+      options: [
+        { value: "cover", label: "Cover (fill panel, crop edges)" },
+        { value: "contain", label: "Contain (whole image visible)" },
+      ],
+      default: "cover",
     },
     {
       name: "foodKcalPerKg",
