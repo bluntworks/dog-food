@@ -1,6 +1,6 @@
 node_modules
 dist
 duda-widget
-*.zip
+release/dogfoodcalc-embed/
 .DS_Store
 .vite

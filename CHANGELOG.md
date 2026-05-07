@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-05-07 — Client release package
+
+### Added
+- `release/` directory with everything needed to email an install kit to a
+  Duda site owner:
+  - `INSTALL.md` — plain-language install instructions covering both the
+    Widget Builder upload path and the HTML-embed paste-in path.
+  - `embed-snippet.html` — standalone copy of the embed snippet.
+  - `dogfoodcalc-widget-builder.zip` — drop into Duda Develop → Widget
+    Builder → Upload widget.
+  - `dogfoodcalc-embed.zip` — JS + CSS + sample snippet for the HTML
+    embed path.
+  - `dogfoodcalc-duda.zip` — single attachment wrapping all three for one
+    email send.
+
 ## 2026-05-07 — Image flexibility + dev fixes
 
 ### Added
