@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DogFoodCalc — local dev host</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 720px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        color: #222;
+      }
+      header {
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+      }
+      .host-note {
+        font-size: 0.85rem;
+        color: #888;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Local Duda host simulator</h1>
+      <p class="host-note">
+        This page mimics a Duda site. The widget below auto-mounts on the
+        <code>[data-dogfood-calc]</code> div, reading <code>data-*</code>
+        attributes for site-owner config.
+      </p>
+    </header>
+
+    <div
+      data-dogfood-calc
+      data-food-kcal-per-kg="1345"
+      data-kibble-kcal-per-kg="1345"
+      data-food-split-percent="80"
+      data-default-mode="mixed"
+      data-enable-mixed-mode="true"
+    ></div>
+
+    <script type="module" src="../src/main.ts"></script>
+  </body>
+</html>

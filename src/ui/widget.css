@@ -1,0 +1,138 @@
+/* All styles scoped under .dogfood-calc to avoid leaking into the host page. */
+
+.dogfood-calc {
+  --dfc-fg: #1f2328;
+  --dfc-muted: #6b7280;
+  --dfc-bg: #ffffff;
+  --dfc-border: #e5e7eb;
+  --dfc-accent: #2f6feb;
+  --dfc-accent-fg: #ffffff;
+  --dfc-warn: #b45309;
+
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  color: var(--dfc-fg);
+  background: var(--dfc-bg);
+  border: 1px solid var(--dfc-border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  max-width: 540px;
+  box-sizing: border-box;
+}
+
+.dogfood-calc * {
+  box-sizing: border-box;
+}
+
+.dogfood-calc h2 {
+  margin: 0 0 1rem;
+  font-size: 1.25rem;
+}
+
+.dogfood-calc__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1rem;
+}
+
+.dogfood-calc__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.dogfood-calc__field--full {
+  grid-column: 1 / -1;
+}
+
+.dogfood-calc__field label {
+  font-size: 0.85rem;
+  color: var(--dfc-muted);
+}
+
+.dogfood-calc__field input,
+.dogfood-calc__field select {
+  font: inherit;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--dfc-border);
+  border-radius: 6px;
+  background: #fff;
+  color: inherit;
+}
+
+.dogfood-calc__field input:focus,
+.dogfood-calc__field select:focus {
+  outline: 2px solid var(--dfc-accent);
+  outline-offset: 1px;
+}
+
+.dogfood-calc__actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.dogfood-calc__submit {
+  font: inherit;
+  font-weight: 600;
+  padding: 0.55rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--dfc-accent);
+  color: var(--dfc-accent-fg);
+  cursor: pointer;
+}
+
+.dogfood-calc__submit:hover {
+  filter: brightness(1.05);
+}
+
+.dogfood-calc__mode {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.9rem;
+  color: var(--dfc-muted);
+}
+
+.dogfood-calc__output {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--dfc-border);
+}
+
+.dogfood-calc__output[hidden] {
+  display: none;
+}
+
+.dogfood-calc__nem {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+}
+
+.dogfood-calc__serving {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+.dogfood-calc__steps {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.8rem;
+  color: var(--dfc-muted);
+}
+
+.dogfood-calc__steps li {
+  margin: 0.15rem 0;
+}
+
+.dogfood-calc__warn {
+  color: var(--dfc-warn);
+  font-weight: 600;
+}

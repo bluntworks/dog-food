@@ -1,0 +1,19 @@
+{
+  "name": "dogfoodcalc-widget",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "build:duda": "pnpm build && tsx scripts/build-duda.ts",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "tsx": "latest",
+    "typescript": "latest",
+    "vite": "latest"
+  }
+}

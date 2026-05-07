@@ -1,0 +1,6 @@
+node_modules
+dist
+duda-widget
+*.zip
+.DS_Store
+.vite
