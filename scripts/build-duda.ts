@@ -21,6 +21,8 @@ const out = resolve(root, "duda-widget");
 const WIDGET_HTML = `<div
   data-dogfood-calc
   data-heading="{{heading}}"
+  data-subheading="{{subheading}}"
+  data-cta-label="{{ctaLabel}}"
   data-food-kcal-per-kg="{{foodKcalPerKg}}"
   data-kibble-kcal-per-kg="{{kibbleKcalPerKg}}"
   data-food-split-percent="{{foodSplitPercent}}"
@@ -39,7 +41,20 @@ const WIDGET_JSON = {
       name: "heading",
       label: "Heading text",
       type: "text",
-      default: "Personalized Energy Needs Calculator",
+      default: "Build your dog's feeding plan",
+    },
+    {
+      name: "subheading",
+      label: "Subheading text",
+      type: "text",
+      default:
+        "Tell us a bit about your dog and we'll work out their daily energy needs.",
+    },
+    {
+      name: "ctaLabel",
+      label: "Button label",
+      type: "text",
+      default: "Calculate daily portion",
     },
     {
       name: "foodKcalPerKg",

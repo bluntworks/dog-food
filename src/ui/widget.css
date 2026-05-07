@@ -1,48 +1,84 @@
-/* All styles scoped under .dogfood-calc to avoid leaking into the host page. */
+/* Scoped under .dogfood-calc to avoid leaking into the host page.
+   Palette extracted from natureandnourish.dog.
+   Site owners can override any token via inline `style="--dfc-leaf:#xxx"` on the host element. */
 
 .dogfood-calc {
-  --dfc-fg: #1f2328;
-  --dfc-muted: #6b7280;
-  --dfc-bg: #ffffff;
-  --dfc-border: #e5e7eb;
-  --dfc-accent: #2f6feb;
-  --dfc-accent-fg: #ffffff;
-  --dfc-warn: #b45309;
+  --dfc-mint: #c8e8da;
+  --dfc-mint-soft: #e5f2eb;
+  --dfc-forest: #1f3d2b;
+  --dfc-leaf: #2e7d4f;
+  --dfc-leaf-hover: #256a40;
+  --dfc-surface: #ffffff;
+  --dfc-border: #d4e7dc;
+  --dfc-border-strong: #b9d8c7;
+  --dfc-muted: #5a6b61;
+  --dfc-warn: #8a3b1f;
 
   font-family:
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
-  color: var(--dfc-fg);
-  background: var(--dfc-bg);
-  border: 1px solid var(--dfc-border);
-  border-radius: 12px;
-  padding: 1.25rem;
-  max-width: 540px;
+    "Poppins", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--dfc-forest);
+  background: var(--dfc-mint);
+  border-radius: 18px;
+  padding: 1.75rem;
+  max-width: 1040px;
   box-sizing: border-box;
+  line-height: 1.45;
 }
 
 .dogfood-calc * {
   box-sizing: border-box;
 }
 
-.dogfood-calc h2 {
-  margin: 0 0 1rem;
-  font-size: 1.25rem;
+.dogfood-calc__header {
+  text-align: center;
+  margin: 0 0 1.5rem;
+}
+
+.dogfood-calc__header h2 {
+  margin: 0 0 0.4rem;
+  font-size: clamp(1.6rem, 2.6vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.dogfood-calc__header p {
+  margin: 0;
+  color: var(--dfc-muted);
+  font-size: 0.95rem;
+}
+
+.dogfood-calc__layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+@media (min-width: 760px) {
+  .dogfood-calc__layout {
+    grid-template-columns: 1.05fr 1fr;
+    gap: 1.75rem;
+  }
+}
+
+/* ---------- Form card ---------- */
+
+.dogfood-calc__form {
+  background: var(--dfc-surface);
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px rgba(31, 61, 43, 0.04);
 }
 
 .dogfood-calc__grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.75rem 1rem;
+  gap: 0.9rem 1rem;
 }
 
 .dogfood-calc__field {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.35rem;
 }
 
 .dogfood-calc__field--full {
@@ -50,87 +86,247 @@
 }
 
 .dogfood-calc__field label {
-  font-size: 0.85rem;
-  color: var(--dfc-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--dfc-forest);
+  letter-spacing: 0.01em;
 }
 
 .dogfood-calc__field input,
 .dogfood-calc__field select {
   font: inherit;
-  padding: 0.5rem 0.6rem;
-  border: 1px solid var(--dfc-border);
-  border-radius: 6px;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--dfc-border-strong);
+  border-radius: 10px;
   background: #fff;
-  color: inherit;
+  color: var(--dfc-forest);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.dogfood-calc__field select {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='none' stroke='%231f3d2b' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' d='M1 1.5l5 5 5-5'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.85rem center;
+  padding-right: 2rem;
 }
 
 .dogfood-calc__field input:focus,
 .dogfood-calc__field select:focus {
-  outline: 2px solid var(--dfc-accent);
-  outline-offset: 1px;
+  outline: none;
+  border-color: var(--dfc-leaf);
+  box-shadow: 0 0 0 3px rgba(46, 125, 79, 0.18);
 }
 
-.dogfood-calc__actions {
+/* Progressive-reveal block */
+
+.dogfood-calc__more {
   margin-top: 1rem;
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
 }
 
-.dogfood-calc__submit {
+.dogfood-calc__more-toggle {
   font: inherit;
   font-weight: 600;
-  padding: 0.55rem 1rem;
+  font-size: 0.85rem;
+  color: var(--dfc-leaf);
+  background: none;
   border: none;
-  border-radius: 6px;
-  background: var(--dfc-accent);
-  color: var(--dfc-accent-fg);
+  padding: 0.25rem 0;
   cursor: pointer;
-}
-
-.dogfood-calc__submit:hover {
-  filter: brightness(1.05);
-}
-
-.dogfood-calc__mode {
   display: inline-flex;
-  gap: 0.5rem;
   align-items: center;
-  font-size: 0.9rem;
-  color: var(--dfc-muted);
+  gap: 0.4rem;
 }
 
-.dogfood-calc__output {
-  margin-top: 1.25rem;
-  padding-top: 1rem;
+.dogfood-calc__more-toggle::after {
+  content: "";
+  width: 0.55rem;
+  height: 0.55rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.15s ease;
+}
+
+.dogfood-calc__more[data-open="true"] .dogfood-calc__more-toggle::after {
+  transform: rotate(-135deg);
+}
+
+.dogfood-calc__more-panel {
+  display: none;
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
   border-top: 1px dashed var(--dfc-border);
 }
 
-.dogfood-calc__output[hidden] {
+.dogfood-calc__more[data-open="true"] .dogfood-calc__more-panel {
+  display: block;
+}
+
+/* CTA */
+
+.dogfood-calc__submit {
+  margin-top: 1.25rem;
+  width: 100%;
+  font: inherit;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.85rem 1.4rem;
+  border: none;
+  border-radius: 999px;
+  background: var(--dfc-leaf);
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.12s ease, transform 0.12s ease;
+}
+
+.dogfood-calc__submit:hover {
+  background: var(--dfc-leaf-hover);
+}
+
+.dogfood-calc__submit:active {
+  transform: translateY(1px);
+}
+
+/* ---------- Right column: hero / result ---------- */
+
+.dogfood-calc__panel {
+  background: var(--dfc-mint-soft);
+  border-radius: 14px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 280px;
+}
+
+.dogfood-calc__hero[hidden],
+.dogfood-calc__result[hidden] {
   display: none;
 }
 
-.dogfood-calc__nem {
-  font-size: 1.4rem;
+.dogfood-calc__hero-illustration {
+  width: 140px;
+  height: 140px;
+  color: var(--dfc-leaf);
+  margin-bottom: 1rem;
+}
+
+.dogfood-calc__hero-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.15rem;
   font-weight: 700;
-  margin: 0 0 0.5rem;
+}
+
+.dogfood-calc__hero-text {
+  margin: 0;
+  color: var(--dfc-muted);
+  font-size: 0.92rem;
+  max-width: 32ch;
+}
+
+/* Result */
+
+.dogfood-calc__result {
+  width: 100%;
+}
+
+.dogfood-calc__nem-label {
+  margin: 0 0 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--dfc-muted);
+}
+
+.dogfood-calc__nem {
+  margin: 0 0 0.25rem;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--dfc-forest);
+  line-height: 1.1;
+}
+
+.dogfood-calc__nem-unit {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--dfc-muted);
+  margin-left: 0.25rem;
 }
 
 .dogfood-calc__serving {
-  margin: 0 0 0.75rem;
-  font-size: 1rem;
+  margin: 1rem 0 0;
+  padding: 0.85rem 1rem;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid var(--dfc-border);
+  font-size: 0.95rem;
+  text-align: left;
+}
+
+.dogfood-calc__serving strong {
+  color: var(--dfc-forest);
+}
+
+.dogfood-calc__mode {
+  margin: 0.85rem 0 0;
+  display: flex;
+  gap: 0.4rem;
+  justify-content: center;
+}
+
+.dogfood-calc__mode button {
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--dfc-border-strong);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--dfc-forest);
+  cursor: pointer;
+}
+
+.dogfood-calc__mode button[aria-pressed="true"] {
+  background: var(--dfc-forest);
+  color: #fff;
+  border-color: var(--dfc-forest);
+}
+
+.dogfood-calc__steps-toggle {
+  margin-top: 0.85rem;
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 0.82rem;
+  color: var(--dfc-leaf);
+  cursor: pointer;
+  padding: 0.25rem;
 }
 
 .dogfood-calc__steps {
-  margin: 0;
-  padding-left: 1.1rem;
-  font-size: 0.8rem;
+  margin: 0.5rem 0 0;
+  padding: 0.85rem 1rem 0.85rem 2rem;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid var(--dfc-border);
+  font-size: 0.82rem;
   color: var(--dfc-muted);
+  text-align: left;
+}
+
+.dogfood-calc__steps[hidden] {
+  display: none;
 }
 
 .dogfood-calc__steps li {
   margin: 0.15rem 0;
 }
+
+/* Warning state (puppy / invalid) */
 
 .dogfood-calc__warn {
   color: var(--dfc-warn);

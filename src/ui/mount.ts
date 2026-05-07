@@ -2,15 +2,20 @@ import type {
   ActivityLevel,
   BodyCondition,
   CalcInput,
+  CalcResult,
+  Serving,
   ServingConfig,
   ServingMode,
   SpayNeuterStatus,
 } from "../calc/types";
 import { calculate, computeServing } from "../calc/calculate";
+import { BREED_GROUPS } from "../calc/breed-groups";
 import { renderTemplate } from "./template";
 
 export interface WidgetConfig {
   readonly heading: string;
+  readonly subheading: string;
+  readonly ctaLabel: string;
   readonly foodKcalPerKg: number;
   readonly kibbleKcalPerKg: number;
   readonly foodSplitPercent: number;
@@ -19,7 +24,10 @@ export interface WidgetConfig {
 }
 
 const DEFAULTS: WidgetConfig = {
-  heading: "Personalized Energy Needs Calculator",
+  heading: "Build your dog's feeding plan",
+  subheading:
+    "Tell us a bit about your dog and we'll work out their daily energy needs.",
+  ctaLabel: "Calculate daily portion",
   foodKcalPerKg: 1345,
   kibbleKcalPerKg: 1345,
   foodSplitPercent: 80,
@@ -34,6 +42,8 @@ export const readConfig = (el: HTMLElement): WidgetConfig => {
   const ds = el.dataset;
   return {
     heading: ds.heading ?? DEFAULTS.heading,
+    subheading: ds.subheading ?? DEFAULTS.subheading,
+    ctaLabel: ds.ctaLabel ?? DEFAULTS.ctaLabel,
     foodKcalPerKg: numAttr(ds.foodKcalPerKg, DEFAULTS.foodKcalPerKg),
     kibbleKcalPerKg: numAttr(ds.kibbleKcalPerKg, DEFAULTS.kibbleKcalPerKg),
     foodSplitPercent: numAttr(ds.foodSplitPercent, DEFAULTS.foodSplitPercent),
@@ -48,6 +58,18 @@ const numAttr = (raw: string | undefined, fallback: number): number => {
   return Number.isFinite(n) && n > 0 ? n : fallback;
 };
 
+/**
+ * Per-instance state. Kept on a WeakMap keyed by host element so that
+ * mode-toggle clicks can re-derive serving without re-running the calc.
+ */
+interface InstanceState {
+  config: WidgetConfig;
+  lastResult: Extract<CalcResult, { status: "ok" }> | null;
+  currentMode: ServingMode;
+}
+
+const STATE = new WeakMap<HTMLElement, InstanceState>();
+
 export const mountWidget = (host: HTMLElement): void => {
   if (host.dataset["dogfoodCalcMounted"] === "true") return;
   host.dataset["dogfoodCalcMounted"] = "true";
@@ -58,83 +80,149 @@ export const mountWidget = (host: HTMLElement): void => {
   host.classList.add("dogfood-calc");
   host.innerHTML = renderTemplate(id, {
     heading: config.heading,
+    subheading: config.subheading,
+    ctaLabel: config.ctaLabel,
     defaultMode: config.defaultMode,
     enableMixedMode: config.enableMixedMode,
   });
 
-  const form = host.querySelector<HTMLFormElement>(`#${id}-form`);
-  if (!form) return;
+  populateBreedDatalist(host, id);
 
+  STATE.set(host, {
+    config,
+    lastResult: null,
+    currentMode: config.defaultMode,
+  });
+
+  wireForm(host);
+  wireMoreToggle(host);
+  wireModeButtons(host);
+  wireStepsToggle(host);
+};
+
+const populateBreedDatalist = (host: HTMLElement, id: string): void => {
+  const list = host.querySelector<HTMLDataListElement>(`#${id}-breed-list`);
+  if (!list) return;
+  const seen = new Set<string>();
+  for (const group of BREED_GROUPS) {
+    for (const breed of group.breeds) {
+      if (seen.has(breed)) continue;
+      seen.add(breed);
+      const opt = document.createElement("option");
+      // Title-case-ish for display; calc layer lower-cases on lookup.
+      opt.value = breed.replace(/\b\w/g, (c) => c.toUpperCase());
+      list.appendChild(opt);
+    }
+  }
+};
+
+const wireForm = (host: HTMLElement): void => {
+  const form = host.querySelector<HTMLFormElement>("form");
+  if (!form) return;
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-    handleSubmit(host, config);
+    handleSubmit(host);
   });
 };
 
-const handleSubmit = (host: HTMLElement, config: WidgetConfig): void => {
-  const out = host.querySelector<HTMLElement>("[data-output]");
-  const nemEl = host.querySelector<HTMLElement>("[data-output-nem]");
-  const servingEl = host.querySelector<HTMLElement>("[data-output-serving]");
-  const stepsEl = host.querySelector<HTMLOListElement>("[data-output-steps]");
-  if (!out || !nemEl || !servingEl || !stepsEl) return;
+const wireMoreToggle = (host: HTMLElement): void => {
+  const more = host.querySelector<HTMLElement>("[data-more]");
+  const btn = host.querySelector<HTMLButtonElement>("[data-more-toggle]");
+  if (!more || !btn) return;
+  btn.addEventListener("click", () => {
+    const open = more.dataset["open"] === "true";
+    more.dataset["open"] = open ? "false" : "true";
+  });
+};
+
+const wireModeButtons = (host: HTMLElement): void => {
+  const buttons = host.querySelectorAll<HTMLButtonElement>("[data-mode-btn]");
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const mode = btn.dataset["modeBtn"] as ServingMode;
+      const state = STATE.get(host);
+      if (!state) return;
+      state.currentMode = mode;
+      buttons.forEach((b) =>
+        b.setAttribute(
+          "aria-pressed",
+          b.dataset["modeBtn"] === mode ? "true" : "false",
+        ),
+      );
+      if (state.lastResult) renderServing(host, state);
+    });
+  });
+};
+
+const wireStepsToggle = (host: HTMLElement): void => {
+  const btn = host.querySelector<HTMLButtonElement>("[data-steps-toggle]");
+  const list = host.querySelector<HTMLOListElement>("[data-output-steps]");
+  if (!btn || !list) return;
+  btn.addEventListener("click", () => {
+    list.hidden = !list.hidden;
+    btn.textContent = list.hidden ? "How we got this" : "Hide details";
+  });
+};
+
+const handleSubmit = (host: HTMLElement): void => {
+  const state = STATE.get(host);
+  if (!state) return;
 
   const input = readForm(host);
   if (!input) {
-    showError(out, nemEl, servingEl, stepsEl, "Please fill in valid values for all fields.");
+    showError(host, "Please enter a valid weight in kilograms.");
     return;
   }
 
   const result = calculate(input);
   if (result.status === "rejected") {
-    showError(out, nemEl, servingEl, stepsEl, result.message);
+    showError(host, result.message);
     return;
   }
 
-  const mode = readMode(host, config);
-  const servingConfig: ServingConfig = {
-    foodKcalPerKg: config.foodKcalPerKg,
-    kibbleKcalPerKg: config.kibbleKcalPerKg,
-    foodSplitPercent: config.foodSplitPercent,
-  };
-  const serving = computeServing(result.nemKcal, mode, servingConfig);
+  state.lastResult = result;
+  showResult(host, state);
+};
 
-  nemEl.classList.remove("dogfood-calc__warn");
-  nemEl.textContent = `Daily energy need: ${result.nemKcal} kcal`;
-
-  servingEl.textContent =
-    serving.mode === "food-only"
-      ? `Food only: ${serving.foodGrams} g/day (${config.foodKcalPerKg} kcal/kg).`
-      : `Food (${config.foodSplitPercent}%): ${serving.foodKcal} kcal → ${serving.foodGrams} g/day. ` +
-        `Kibble (${100 - config.foodSplitPercent}%): ${serving.kibbleKcal} kcal.`;
-
-  stepsEl.innerHTML = result.steps.map((s) => `<li>${s}</li>`).join("");
-  out.hidden = false;
+/** Maps an age-band select value to a representative numeric age that lands
+ *  in the correct spec tier. Spec tiers: <1 reject, 1–2 +0.1, 2–5 0,
+ *  5–8 −0.1, >8 −0.1. Representative values are picked to be unambiguously
+ *  inside each tier. */
+const ageBandToYears = (band: string): number => {
+  switch (band) {
+    case "puppy":
+      return 0.5;
+    case "1-2":
+      return 2;
+    case "3-5":
+      return 4;
+    case "6-8":
+      return 7;
+    case "9+":
+      return 10;
+    default:
+      return 4;
+  }
 };
 
 const readForm = (host: HTMLElement): CalcInput | null => {
   const weight = numField(host, "weight");
-  const age = numField(host, "age");
-  const breedRaw = strField(host, "breed");
-  const activity = strField(host, "activity") as ActivityLevel;
-  const body = strField(host, "body") as BodyCondition;
-  const spay = strField(host, "spay") as SpayNeuterStatus;
+  const ageBand = strField(host, "age") ?? "3-5";
+  const breedRaw = strField(host, "breed") ?? "";
+  const activity = (strField(host, "activity") ?? "moderate") as ActivityLevel;
+  const body = (strField(host, "body") ?? "ideal weight") as BodyCondition;
+  const spay = (strField(host, "spay") ?? "intact male") as SpayNeuterStatus;
 
-  if (weight === null || age === null || weight <= 0) return null;
+  if (weight === null || weight <= 0) return null;
 
   return {
     weightKg: weight,
-    ageYears: age,
+    ageYears: ageBandToYears(ageBand),
     activity,
     bodyCondition: body,
     spayNeuter: spay,
-    breed: breedRaw ?? "",
+    breed: breedRaw,
   };
-};
-
-const readMode = (host: HTMLElement, config: WidgetConfig): ServingMode => {
-  if (!config.enableMixedMode) return "food-only";
-  const sel = host.querySelector<HTMLSelectElement>('[data-field="mode"]');
-  return sel?.value === "food-only" ? "food-only" : "mixed";
 };
 
 const numField = (host: HTMLElement, name: string): number | null => {
@@ -151,16 +239,75 @@ const strField = (host: HTMLElement, name: string): string | null => {
   return el?.value ?? null;
 };
 
-const showError = (
-  out: HTMLElement,
-  nemEl: HTMLElement,
-  servingEl: HTMLElement,
-  stepsEl: HTMLOListElement,
-  message: string,
-): void => {
+/* ---------- Output rendering ---------- */
+
+const showResult = (host: HTMLElement, state: InstanceState): void => {
+  const hero = host.querySelector<HTMLElement>("[data-hero]");
+  const result = host.querySelector<HTMLElement>("[data-result]");
+  const nemEl = host.querySelector<HTMLElement>("[data-output-nem]");
+  if (!hero || !result || !nemEl || !state.lastResult) return;
+
+  hero.hidden = true;
+  result.hidden = false;
+  nemEl.classList.remove("dogfood-calc__warn");
+  nemEl.textContent = String(state.lastResult.nemKcal);
+
+  renderServing(host, state);
+  renderSteps(host, state.lastResult.steps);
+};
+
+const renderServing = (host: HTMLElement, state: InstanceState): void => {
+  if (!state.lastResult) return;
+  const servingEl = host.querySelector<HTMLElement>("[data-output-serving]");
+  if (!servingEl) return;
+
+  const config: ServingConfig = {
+    foodKcalPerKg: state.config.foodKcalPerKg,
+    kibbleKcalPerKg: state.config.kibbleKcalPerKg,
+    foodSplitPercent: state.config.foodSplitPercent,
+  };
+  const mode: ServingMode = state.config.enableMixedMode
+    ? state.currentMode
+    : "food-only";
+  const serving = computeServing(state.lastResult.nemKcal, mode, config);
+  servingEl.innerHTML = formatServing(serving, state.config);
+};
+
+const formatServing = (serving: Serving, config: WidgetConfig): string => {
+  if (serving.mode === "food-only") {
+    return `<strong>${serving.foodGrams} g</strong> of food per day
+      <br><span style="color:var(--dfc-muted);font-size:0.85em">
+      Based on ${config.foodKcalPerKg} kcal/kg.</span>`;
+  }
+  const kibblePercent = 100 - config.foodSplitPercent;
+  return `<strong>${serving.foodGrams} g</strong> of food
+    <span style="color:var(--dfc-muted)">(${config.foodSplitPercent}%, ${serving.foodKcal} kcal)</span>
+    <br>+ <strong>${serving.kibbleKcal} kcal</strong> of kibble
+    <span style="color:var(--dfc-muted)">(${kibblePercent}%)</span>`;
+};
+
+const renderSteps = (host: HTMLElement, steps: readonly string[]): void => {
+  const list = host.querySelector<HTMLOListElement>("[data-output-steps]");
+  const toggle = host.querySelector<HTMLButtonElement>("[data-steps-toggle]");
+  if (!list) return;
+  list.innerHTML = steps.map((s) => `<li>${s}</li>`).join("");
+  list.hidden = true;
+  if (toggle) toggle.textContent = "How we got this";
+};
+
+const showError = (host: HTMLElement, message: string): void => {
+  const hero = host.querySelector<HTMLElement>("[data-hero]");
+  const result = host.querySelector<HTMLElement>("[data-result]");
+  const nemEl = host.querySelector<HTMLElement>("[data-output-nem]");
+  const servingEl = host.querySelector<HTMLElement>("[data-output-serving]");
+  const stepsEl = host.querySelector<HTMLOListElement>("[data-output-steps]");
+  if (!hero || !result || !nemEl || !servingEl || !stepsEl) return;
+
+  hero.hidden = true;
+  result.hidden = false;
   nemEl.classList.add("dogfood-calc__warn");
-  nemEl.textContent = message;
-  servingEl.textContent = "";
+  nemEl.textContent = "—";
+  servingEl.innerHTML = `<span class="dogfood-calc__warn">${message}</span>`;
   stepsEl.innerHTML = "";
-  out.hidden = false;
+  stepsEl.hidden = true;
 };

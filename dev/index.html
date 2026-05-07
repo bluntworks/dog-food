@@ -4,43 +4,55 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DogFoodCalc — local dev host</title>
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <style>
-      body {
-        font-family: system-ui, sans-serif;
-        max-width: 720px;
-        margin: 2rem auto;
-        padding: 0 1rem;
-        color: #222;
+      :root {
+        font-family: "Poppins", system-ui, sans-serif;
+        color: #1f3d2b;
       }
-      header {
-        border-bottom: 1px solid #ddd;
-        padding-bottom: 0.5rem;
-        margin-bottom: 1.5rem;
+      body {
+        margin: 0;
+        background: #ffffff;
+      }
+      .host {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2.5rem 1.25rem;
       }
       .host-note {
         font-size: 0.85rem;
-        color: #888;
+        color: #6b7280;
+        margin-bottom: 2rem;
       }
     </style>
   </head>
   <body>
-    <header>
-      <h1>Local Duda host simulator</h1>
+    <div class="host">
       <p class="host-note">
-        This page mimics a Duda site. The widget below auto-mounts on the
-        <code>[data-dogfood-calc]</code> div, reading <code>data-*</code>
-        attributes for site-owner config.
+        Local Duda host simulator — the widget below auto-mounts on
+        <code>[data-dogfood-calc]</code>.
       </p>
-    </header>
 
-    <div
-      data-dogfood-calc
-      data-food-kcal-per-kg="1345"
-      data-kibble-kcal-per-kg="1345"
-      data-food-split-percent="80"
-      data-default-mode="mixed"
-      data-enable-mixed-mode="true"
-    ></div>
+      <div
+        data-dogfood-calc
+        data-heading="Build your dog's feeding plan"
+        data-subheading="Tell us a bit about your dog and we'll work out their daily energy needs."
+        data-cta-label="Calculate daily portion"
+        data-food-kcal-per-kg="1345"
+        data-kibble-kcal-per-kg="1345"
+        data-food-split-percent="80"
+        data-default-mode="mixed"
+        data-enable-mixed-mode="true"
+      ></div>
+    </div>
 
     <script type="module" src="../src/main.ts"></script>
   </body>
